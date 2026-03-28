@@ -3,6 +3,7 @@ const { exec } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const youtubedl = require('youtube-dl-exec');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -45,13 +46,14 @@ app.get('/download', async (req, res) => {
 
   const randomName = `yt_${crypto.randomBytes(8).toString('hex')}.mp3`;
   const outputPath = path.join(DOWNLOAD_DIR, randomName);
-  const command = `yt-dlp -f bestaudio --extract-audio --audio-format mp3 --audio-quality 0 -o "${outputPath}" "${cleanUrl}"`;
 
-  exec(command, { timeout: 120000 }, (error) => {
-    if (error) {
-      console.error(error);
-      return res.status(500).json({ error: 'Download failed' });
-    }
+  try {
+    await youtubedl(cleanUrl, {
+      extractAudio: true,
+      audioFormat: 'mp3',
+      audioQuality: 0,
+      output: outputPath
+    });
 
     const fileUrl = `${req.protocol}://${req.get('host')}/file/${randomName}`;
     if (raw === 'true') {
@@ -59,7 +61,10 @@ app.get('/download', async (req, res) => {
     } else {
       res.json({ download: fileUrl });
     }
-  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Download failed: ' + error.message });
+  }
 });
 
 app.get('/file/:filename', (req, res) => {
@@ -84,16 +89,14 @@ How to use:
 2. You will receive a JSON response:
    { "download": "https://your-app.onrender.com/file/yt_xxxxx.mp3" }
 
-3. Use that link directly in your game or share it with friends.
+3. Use that link directly in your game.
 
 Optional parameters:
-   &raw=true  → returns only the download URL as plain text (no JSON).
-   Example: https://your-app.onrender.com/download?url=...&raw=true
+   &raw=true  → returns only the download URL as plain text.
 
 Important:
    - The download link expires after 6 hours.
    - Only MP3 format is supported.
-   - The video must be publicly available.
   `);
 });
 
