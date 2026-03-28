@@ -1,0 +1,12 @@
+{
+  "name": "youtube-direct-downloader",
+  "version": "1.0.0",
+  "main": "server.js",
+  "dependencies": {
+    "express": "^5.1.0",
+    "youtube-downloader-cc-api": "^1.0.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
