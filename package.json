@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "server.js",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "youtube-dl-exec": "^2.5.0"
   },
   "engines": {
     "node": ">=18.0.0"
